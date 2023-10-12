@@ -78,7 +78,6 @@ jobs:
             -destination "generic/platform=iOS Simulator" \
             -derivedDataPath "${{ env.DERIVED_DATA_PATH }}"
 
-        
       - uses: mobile-dev-inc/action-maestro-cloud@v1
         with:
           api-key: ${{ secrets.MAESTRO_CLOUD_API_KEY }}

@@ -63,4 +63,5 @@ jobs:
         with:
           api-key: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
           app-file: './ios/my_build/Build/Products/Release-iphonesimulator/exampleNative.app'
+          
 

@@ -35,12 +35,14 @@ jobs:
       #     path: ./ios/Pods
       #     key: ${{ runner.os }}-pods-${{ hashFiles('ios/Podfile.lock') }}
       # - if: ${{ steps.pods-cache.outputs.cache-hit != 'true' }}
-      - run: bundle exec pod install
+      #   run: cd ios && pod install
 
-      - name: Cache DERIVED_DATA
+      - name: Cache data
         uses: actions/cache@master
         with:
-          path: ./ios/my_build
+          path: |
+            ./ios/Pods
+            ./ios/my_build
           key: ${{ runner.os }}-derived-data-${{ hashFiles('ios/Podfile.lock') }}
       - if: ${{ steps.derived-data-cache.outputs.cache-hit != 'true' }}
         name: Build app for simulator
@@ -48,6 +50,7 @@ jobs:
         env:
           DERIVED_DATA_PATH: my_build
         run: |
+          pod install
           xcrun xcodebuild \
             -scheme "exampleNative" \
             -workspace "exampleNative.xcworkspace" \

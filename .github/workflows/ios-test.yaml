@@ -28,18 +28,17 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Cache Pods
-        uses: actions/cache@v3
-        id: pods-cache
-        with:
-          path: ./ios/Pods
-          key: ${{ runner.os }}-pods-${{ hashFiles('ios/Podfile.lock') }}
-      - if: ${{ steps.pods-cache.outputs.cache-hit != 'true' }}
-        run: cd ios && pod install
+      # - name: Cache Pods
+      #   uses: actions/cache@v3
+      #   id: pods-cache
+      #   with:
+      #     path: ./ios/Pods
+      #     key: ${{ runner.os }}-pods-${{ hashFiles('ios/Podfile.lock') }}
+      # - if: ${{ steps.pods-cache.outputs.cache-hit != 'true' }}
+      - run: cd ios && bundle exec pod install
 
       - name: Cache DERIVED_DATA
         uses: actions/cache@master
-        id: derived-data-cache
         with:
           path: ./ios/my_build
           key: ${{ runner.os }}-derived-data-${{ hashFiles('ios/Podfile.lock') }}

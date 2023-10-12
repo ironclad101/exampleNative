@@ -37,29 +37,8 @@ jobs:
       - if: ${{ steps.pods-cache.outputs.cache-hit != 'true' }}
         run: cd ios && pod install
 
-      # - uses: nrwl/nx-set-shas@v3 
-      #   name: Create variable for the nearest main commit SHA 
-      #   with: 
-      #     main-branch-name: 'main'
-      # - uses: actions/cache/save@v3 
-      #   name: Save Derived Data Cache 
-      #   with: 
-      #     path: tmp/derived-data 
-      #     key: v1-derived-data-cache-${{ steps.setSHAs.outputs.head }}
-      # - uses: actions/cache/restore@v3 
-      #   name: Restore Derived Data Cache 
-      #   with: 
-      #     path: tmp/derived-data 
-      #     key: | 
-      #       v1-derived-data-cache-${{ steps.setSHAs.outputs.head }}
-      #       v1-derived-data-cache-
-      # - name: Update mtime for incremental builds 
-      #   uses: chetan/git-restore-mtime-action@v2
-      # - name: Set IgnoreFileSystemDeviceInodeChanges flag 
-      #   run: defaults write com.apple.dt.XCBuild IgnoreFileSystemDeviceInodeChanges -bool YES
-
       - name: Cache DERIVED_DATA
-        uses: actions/cache@v3
+        uses: actions/cache@master
         id: derived-data-cache
         with:
           path: ./ios/my_build
@@ -82,4 +61,4 @@ jobs:
         with:
           api-key: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
           app-file: './ios/my_build/Build/Products/Release-iphonesimulator/exampleNative.app'
-          
+

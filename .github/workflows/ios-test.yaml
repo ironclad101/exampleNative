@@ -28,15 +28,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # - name: Cache Pods
-      #   uses: actions/cache@v3
-      #   id: pods-cache
-      #   with:
-      #     path: ./ios/Pods
-      #     key: ${{ runner.os }}-pods-${{ hashFiles('ios/Podfile.lock') }}
-      # - if: ${{ steps.pods-cache.outputs.cache-hit != 'true' }}
-      #   run: cd ios && pod install
-
       - name: Cache data
         uses: actions/cache@master
         with:
@@ -63,5 +54,5 @@ jobs:
         with:
           api-key: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
           app-file: './ios/my_build/Build/Products/Release-iphonesimulator/exampleNative.app'
-          
+
 

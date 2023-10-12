@@ -1,0 +1,5 @@
+appId: com.examplenative
+---
+- launchApp
+- tapOn: "Click"
+- assertVisible: "1"

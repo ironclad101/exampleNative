@@ -1,0 +1,91 @@
+name: Build and upload to Maestro Cloud (Native iOS)
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache node modules
+        id: cache-npm
+        uses: actions/cache@v3
+        env:
+          CACHE_NAME: cache-node-modules
+        with:
+          path: ./node_modules
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
+        name: List the state of node modules
+        continue-on-error: true
+        run: npm list
+      - name: Install dependencies
+        run: npm install
+
+      # - name: Setup Ruby + Cache Gems
+      #   uses: ruby/setup-ruby@v1
+      #   with:
+      #     bundler-cache: true
+
+      - name: Cache Pods
+        uses: actions/cache@v3
+        id: pods-cache
+        with:
+          path: ./ios/Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('ios/Podfile.lock') }}
+      - if: ${{ steps.pods-cache.outputs.cache-hit != 'true' }}
+        run: cd ios && pod install
+
+      # - uses: nrwl/nx-set-shas@v3 
+      #   name: Create variable for the nearest main commit SHA 
+      #   with: 
+      #     main-branch-name: 'main'
+      # - uses: actions/cache/save@v3 
+      #   name: Save Derived Data Cache 
+      #   with: 
+      #     path: tmp/derived-data 
+      #     key: v1-derived-data-cache-${{ steps.setSHAs.outputs.head }}
+      # - uses: actions/cache/restore@v3 
+      #   name: Restore Derived Data Cache 
+      #   with: 
+      #     path: tmp/derived-data 
+      #     key: | 
+      #       v1-derived-data-cache-${{ steps.setSHAs.outputs.head }}
+      #       v1-derived-data-cache-
+      # - name: Update mtime for incremental builds 
+      #   uses: chetan/git-restore-mtime-action@v2
+      # - name: Set IgnoreFileSystemDeviceInodeChanges flag 
+      #   run: defaults write com.apple.dt.XCBuild IgnoreFileSystemDeviceInodeChanges -bool YES
+
+      - name: Cache DERIVED_DATA
+        uses: actions/cache@v3
+        id: derived-data-cache
+        with:
+          path: ./ios/my_build
+          key: ${{ runner.os }}-derived-data-${{ hashFiles('ios/Podfile.lock') }}
+      - if: ${{ steps.derived-data-cache.outputs.cache-hit != 'true' }}
+        name: Build app for simulator
+        working-directory: ios
+        env:
+          DERIVED_DATA_PATH: my_build
+        run: |
+          xcrun xcodebuild \
+            -scheme "exampleNative" \
+            -workspace "exampleNative.xcworkspace" \
+            -configuration "Release" \
+            -sdk "iphonesimulator" \
+            -destination "generic/platform=iOS Simulator" \
+            -derivedDataPath "${{ env.DERIVED_DATA_PATH }}"
+
+        
+      - uses: mobile-dev-inc/action-maestro-cloud@v1
+        with:
+          api-key: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
+          app-file: './ios/my_build/Build/Products/Release-iphonesimulator/exampleNative.app'
+          
